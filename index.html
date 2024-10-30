@@ -1,0 +1,43 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Image Upload</title>
+</head>
+<body>
+    <h1>Real-Time Image Upload</h1>
+
+    <input type="file" id="image_input" accept="image/*">
+    <button onclick="uploadImage()">Upload Image</button>
+
+    <div id="messages"></div>
+
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.7/socket.io.js"></script> -->
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js" ></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.4.1/dist/socket.io.min.js" ></script>
+
+    <script>
+        var socket = io.connect('http://127.0.0.1:5000/');
+
+        socket.on('image_uploaded', function(data) {
+            var messages = document.getElementById('messages');
+            messages.innerHTML += '<p>' + data + '</p>';
+        });
+
+        function uploadImage() {
+            var input = document.getElementById('image_input');
+            var file = input.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+                reader.readAsArrayBuffer(file);
+                reader.onload = function(event) {
+                    socket.emit('upload_image', new Uint8Array(event.target.result));
+                };
+            }
+        }
+    </script>
+</body>
+</html>
